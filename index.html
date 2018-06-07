@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en-US">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Birthday Calculator</title>
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+  <link rel="shortcut icon" href="favicon.ico">
+  <link rel="icon" href="favicon.ico">
+  <link href="https://fonts.googleapis.com/css?family=Patua+One" rel="stylesheet">
+  <style type="text/css">
+    body { font-family: 'Patua One', cursive; }
+    #calendar { text-align:center; }
+    #calendar .row { padding:5px; }
+    select { font-size:16px; line-height:24px; }
+  </style>
+  <!--[if lt IE 9]>
+  <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+</head>
+<body>
+  <div id="calendar">
+  <h1>Enter Your Birthday</h1>
+  <div>
+    <div class="row">
+      <select name="month" id="month">
+        <option value="0">January</option>
+        <option value="1">February</option>
+        <option value="2">March</option>
+        <option value="3">April</option>
+        <option value="4">May</option>
+        <option value="5">June</option>
+        <option value="6">July</option>
+        <option value="7">August</option>
+        <option value="8">September</option>
+        <option value="9">October</option>
+        <option value="10">November</option>
+        <option value="11">December</option>
+      </select> 
+      <select name="day" id="day"></select> 
+      <select name="year" id="year"></select>
+    </div>
+    <div class="row">
+      <select name="hour" id="hour"></select> 
+      <select name="minute" id="minute"></select>
+    </div>
+  </div>
+  <div id="result">
+    
+  </div>
+</div>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script>window.jQuery || document.write('<script src="js/jquery-3.3.1.min.js">\x3C/script>')</script>
+  <script type="text/javascript">
+    var birthcalc = {
+      startDate:null,
+      now:null,
+      diff:null,
+      live:null,
+      input:{
+        year:null,
+        day:null,
+        month:null,
+        hour:null,
+        minute:null
+      },
+      cal:{
+        year:null,
+        day:null,
+        month:null,
+        hour:null,
+        minute:null
+      },
+      init:function(){
+        this.input.year = $("#year");
+        this.input.day = $("#day");
+        this.input.month = $("#month");
+        this.input.hour = $("#hour");
+        this.input.minute = $("#minute");
+        this.fillCalendar();  
+        this.updateNow();
+        this.liveUpdate("on");
+      },
+      liveUpdate:function(action){
+        switch(action){
+          case "on":
+            this.live = setInterval(function(){
+              birthcalc.generateStats();
+            }, 1000);
+            break;
+          case "off":
+            clearInterval(this.live);
+            break;
+        }
+      },
+      updateNow:function(){
+        var tempdate = new Date();
+        //Get now normalized to 0 seconds.
+        this.now = new Date(
+          tempdate.getFullYear(),
+          tempdate.getMonth(),
+          tempdate.getDate(),
+          tempdate.getHours(),
+          tempdate.getMinutes(),
+          tempdate.getSeconds()
+        );
+      },
+      fillCalendar:function(){
+        var startyear = new Date().getFullYear()
+        //Go back 200 years
+        var endyear = startyear - 200;
+        for(var i = startyear; i > endyear; i--){
+          this.input.year.append('<option value="'+i+'">'+i+'</option>');
+        }
+        for(var ii = 1; ii <= 31; ii++){
+          this.input.day.append('<option value="'+ii+'">'+ii+'</option>');
+        }
+        for(var iii = 0; iii <= 23; iii++){
+          this.input.hour.append('<option value="'+iii+'">'+iii+'</option>');
+        }
+        for(var iiii = 0; iiii <= 59; iiii++){
+          this.input.minute.append('<option value="'+iiii+'">'+iiii+'</option>');
+        }
+      },
+      setBirthday:function(){
+        this.cal.year = this.input.year.val();
+        this.cal.month = this.input.month.val();
+        this.cal.day = this.input.day.val();
+        this.cal.hour = this.input.hour.val();
+        this.cal.minute = this.input.minute.val();
+        this.startDate = new Date(this.cal.year, this.cal.month, this.cal.day, this.cal.hour, this.cal.minute, 0);
+        this.diff = parseInt(this.now.getTime()/1000) - parseInt(this.startDate.getTime()/1000);
+      },
+      generateStats:function(){
+        this.updateNow();
+        this.setBirthday();
+      $("#result").html("\
+        <h2>"+$("#year").val()+"</h2>\
+        <p>"+this.startDate+"</p>\
+        <h3>You have been around for</h3>\
+    <p>"+(this.diff/(86400*365.25)).toFixed(2)+" Years.</p>\
+    <p>"+(this.diff/(86400*7)).toFixed(0)+" Weeks.</p>\
+    <p>"+(this.diff/(86400)).toFixed(1)+" Days.</p>\
+    <p>"+(this.diff/(3600)).toFixed(1)+" Hours.</p>\
+    <p>"+(this.diff/(60)).toFixed(0)+" Minutes.</p>\
+    <p>"+this.diff+" Seconds.</p>\
+    <h3>Milestones</h3>\
+   ");
+  }
+};
+
+$(document)
+.ready(function(){
+  birthcalc.init();
+})
+.on("change", "#calendar select", function(){
+  birthcalc.generateStats();
+})
+;
+
+  </script>
+</body>
+</html>
